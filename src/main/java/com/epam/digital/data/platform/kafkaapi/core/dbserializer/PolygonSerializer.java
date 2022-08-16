@@ -16,37 +16,43 @@
 
 package com.epam.digital.data.platform.kafkaapi.core.dbserializer;
 
-import com.epam.digital.data.platform.model.core.geometry.Point;
+import com.epam.digital.data.platform.model.core.geometry.Polygon;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
 import java.io.IOException;
+import java.util.stream.Collectors;
 
-public class PointSerializer extends StdSerializer<Point> {
+public class PolygonSerializer extends StdSerializer<Polygon> {
 
-  public PointSerializer() {
-    super(Point.class);
+  public PolygonSerializer() {
+    super(Polygon.class);
   }
 
   @Override
   public void serialize(
-      Point point, JsonGenerator jsonGenerator, SerializerProvider serializerProvider)
+      Polygon polygon, JsonGenerator jsonGenerator, SerializerProvider serializerProvider)
       throws IOException {
     jsonGenerator.writeString(
         String.format(
-            "SRID=%d;POINT(%s %s)",
-            point.getSrid(), point.getLongitude().toString(), point.getLatitude().toString()));
+            "SRID=%d;POLYGON((%s))", polygon.getSrid(), getPolygonDotsFormatted(polygon)));
+  }
+
+  private String getPolygonDotsFormatted(Polygon polygon) {
+    return polygon.getDots().stream()
+        .map(dot -> dot.getLongitude() + " " + dot.getLatitude())
+        .collect(Collectors.joining(", "));
   }
 
   @Override
   public void serializeWithType(
-      Point point,
+      Polygon polygon,
       JsonGenerator jsonGenerator,
       SerializerProvider serializers,
       TypeSerializer typeSer)
       throws IOException {
-    serialize(point, jsonGenerator, serializers);
+    serialize(polygon, jsonGenerator, serializers);
   }
 }

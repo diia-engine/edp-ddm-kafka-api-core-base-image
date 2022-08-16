@@ -16,37 +16,42 @@
 
 package com.epam.digital.data.platform.kafkaapi.core.dbserializer;
 
-import com.epam.digital.data.platform.model.core.geometry.Point;
+import com.epam.digital.data.platform.model.core.geometry.Line;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
 import java.io.IOException;
+import java.util.stream.Collectors;
 
-public class PointSerializer extends StdSerializer<Point> {
+public class LineSerializer extends StdSerializer<Line> {
 
-  public PointSerializer() {
-    super(Point.class);
+  public LineSerializer() {
+    super(Line.class);
   }
 
   @Override
   public void serialize(
-      Point point, JsonGenerator jsonGenerator, SerializerProvider serializerProvider)
+      Line line, JsonGenerator jsonGenerator, SerializerProvider serializerProvider)
       throws IOException {
     jsonGenerator.writeString(
-        String.format(
-            "SRID=%d;POINT(%s %s)",
-            point.getSrid(), point.getLongitude().toString(), point.getLatitude().toString()));
+        String.format("SRID=%d;LINESTRING(%s)", line.getSrid(), getLineDotsFormatted(line)));
+  }
+
+  private String getLineDotsFormatted(Line line) {
+    return line.getDots().stream()
+        .map(dot -> dot.getLongitude() + " " + dot.getLatitude())
+        .collect(Collectors.joining(", "));
   }
 
   @Override
   public void serializeWithType(
-      Point point,
+      Line line,
       JsonGenerator jsonGenerator,
       SerializerProvider serializers,
       TypeSerializer typeSer)
       throws IOException {
-    serialize(point, jsonGenerator, serializers);
+    serialize(line, jsonGenerator, serializers);
   }
 }

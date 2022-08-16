@@ -21,8 +21,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.epam.digital.data.platform.kafkaapi.core.config.GenericConfig;
 import com.epam.digital.data.platform.kafkaapi.core.config.JooqTestConfig;
 import com.epam.digital.data.platform.kafkaapi.core.util.MockEntity;
+import com.epam.digital.data.platform.model.core.geometry.Dot;
+import com.epam.digital.data.platform.model.core.geometry.Line;
 import com.epam.digital.data.platform.model.core.geometry.Point;
 import com.epam.digital.data.platform.kafkaapi.core.util.MockEntityMultiFiles;
+import com.epam.digital.data.platform.model.core.geometry.Polygon;
 import com.epam.digital.data.platform.model.core.kafka.File;
 import com.epam.digital.data.platform.model.core.kafka.Request;
 import com.epam.digital.data.platform.model.core.kafka.RequestContext;
@@ -93,6 +96,9 @@ class EntityConverterTest {
   @Test
   void expectEntityIsMappedToDbFields() {
     MockEntity mockEntity = getMockEntity();
+    Point location = new Point(BigDecimal.valueOf(1.1), BigDecimal.valueOf(1.3));
+    mockEntity.setLocation(location);
+
     Map<String, Object> entityMap = entityConverter.entityToMap(mockEntity);
 
     assertThat(entityMap)
@@ -105,6 +111,52 @@ class EntityConverterTest {
         .containsEntry("person_pass_number", USER_PASS)
         .containsEntry("passport_scan_copy", "(" + SCAN_COPY_ID + "," + SCAN_COPY_CHECKSUM + ")")
         .containsEntry("location", "SRID=4326;POINT(1.1 1.3)");
+  }
+
+  @Test
+  void expectEntityIsMappedWithLineField() {
+    MockEntity mockEntity = getMockEntity();
+    mockEntity.setLocation(
+        new Line(
+            List.of(
+                new Dot(BigDecimal.valueOf(1.1), BigDecimal.valueOf(1.3)),
+                new Dot(BigDecimal.valueOf(10.75), BigDecimal.valueOf(15.17)))));
+
+    Map<String, Object> entityMap = entityConverter.entityToMap(mockEntity);
+
+    assertThat(entityMap)
+            .hasSize(6)
+            .containsEntry("consent_id", CONSENT_ID.toString())
+            .containsEntry(
+                    "consent_date",
+                    CONSENT_DATE.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")))
+            .containsEntry("person_full_name", USER_NAME)
+            .containsEntry("person_pass_number", USER_PASS)
+            .containsEntry("passport_scan_copy", "(" + SCAN_COPY_ID + "," + SCAN_COPY_CHECKSUM + ")")
+            .containsEntry("location", "SRID=4326;LINESTRING(1.1 1.3, 10.75 15.17)");
+  }
+
+  @Test
+  void expectEntityIsMappedWithPolygonField() {
+    MockEntity mockEntity = getMockEntity();
+    mockEntity.setLocation(
+            new Polygon(
+                    List.of(
+                            new Dot(BigDecimal.valueOf(1.1), BigDecimal.valueOf(1.3)),
+                            new Dot(BigDecimal.valueOf(10.75), BigDecimal.valueOf(15.17)))));
+
+    Map<String, Object> entityMap = entityConverter.entityToMap(mockEntity);
+
+    assertThat(entityMap)
+            .hasSize(6)
+            .containsEntry("consent_id", CONSENT_ID.toString())
+            .containsEntry(
+                    "consent_date",
+                    CONSENT_DATE.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")))
+            .containsEntry("person_full_name", USER_NAME)
+            .containsEntry("person_pass_number", USER_PASS)
+            .containsEntry("passport_scan_copy", "(" + SCAN_COPY_ID + "," + SCAN_COPY_CHECKSUM + ")")
+            .containsEntry("location", "SRID=4326;POLYGON((1.1 1.3, 10.75 15.17))");
   }
 
   @Test
@@ -151,11 +203,6 @@ class EntityConverterTest {
     mockEntity.setPassportScanCopy(new File());
     mockEntity.getPassportScanCopy().setId(SCAN_COPY_ID);
     mockEntity.getPassportScanCopy().setChecksum(SCAN_COPY_CHECKSUM);
-
-    Point location = new Point();
-    location.setLatitude(BigDecimal.valueOf(1.1));
-    location.setLongitude(BigDecimal.valueOf(1.3));
-    mockEntity.setLocation(location);
     return mockEntity;
   }
 

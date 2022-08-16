@@ -16,7 +16,9 @@
 
 package com.epam.digital.data.platform.kafkaapi.core.config;
 
+import com.epam.digital.data.platform.kafkaapi.core.dbserializer.LineSerializer;
 import com.epam.digital.data.platform.kafkaapi.core.dbserializer.PointSerializer;
+import com.epam.digital.data.platform.kafkaapi.core.dbserializer.PolygonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -48,6 +50,8 @@ public class GenericConfig {
     mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
     SimpleModule serializingModule = new SimpleModule();
     serializingModule.addSerializer(new PointSerializer());
+    serializingModule.addSerializer(new LineSerializer());
+    serializingModule.addSerializer(new PolygonSerializer());
     mapper.registerModule(serializingModule);
     return mapper;
   }
