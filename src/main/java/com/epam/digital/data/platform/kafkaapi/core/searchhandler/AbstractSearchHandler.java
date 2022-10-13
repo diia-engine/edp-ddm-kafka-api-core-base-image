@@ -17,10 +17,13 @@
 package com.epam.digital.data.platform.kafkaapi.core.searchhandler;
 
 import com.epam.digital.data.platform.kafkaapi.core.audit.AuditableDatabaseOperation;
+import com.epam.digital.data.platform.kafkaapi.core.exception.ForbiddenOperationException;
 import com.epam.digital.data.platform.kafkaapi.core.exception.SqlErrorException;
 import com.epam.digital.data.platform.kafkaapi.core.util.Operation;
 import com.epam.digital.data.platform.model.core.kafka.Request;
 import java.util.List;
+
+import com.epam.digital.data.platform.starter.security.dto.JwtClaimsDto;
 import org.jooq.Condition;
 import org.jooq.DSLContext;
 import org.jooq.SelectFieldOrAsterisk;
@@ -38,17 +41,27 @@ public abstract class AbstractSearchHandler<I, O> implements SearchHandler<I, O>
   public List<O> search(Request<I> input) {
     I searchCriteria = input.getPayload();
 
+    validateAccess(input);
+
     try {
       return
           context
               .select(selectFields())
               .from(DSL.table(tableName()))
               .where(whereClause(searchCriteria))
+                  .and(getCommonCondition(input))
               .limit(offset(searchCriteria), limit(searchCriteria))
               .fetchInto(entityType());
     } catch (Exception e) {
       throw new SqlErrorException("Can not read from DB", e);
     }
+  }
+
+  public void validateAccess(Request<I> input) {
+  }
+
+  public Condition getCommonCondition(Request<I> input) {
+    return DSL.noCondition();
   }
 
   protected abstract Condition whereClause(I searchCriteria);
