@@ -26,6 +26,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 public class SequenceGenerator {
@@ -39,6 +41,7 @@ public class SequenceGenerator {
     this.dataSource = dataSource;
   }
 
+  @Transactional(propagation = Propagation.NOT_SUPPORTED)
   public Long nextValue(String sequenceName) {
     log.info("Generate next value by sequence {}", sequenceName);
 

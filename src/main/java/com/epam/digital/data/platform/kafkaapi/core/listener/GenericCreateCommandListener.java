@@ -20,7 +20,6 @@ import com.epam.digital.data.platform.kafkaapi.core.commandhandler.CreateCommand
 import com.epam.digital.data.platform.kafkaapi.core.exception.RequestProcessingException;
 import com.epam.digital.data.platform.kafkaapi.core.service.InputValidationService;
 import com.epam.digital.data.platform.kafkaapi.core.service.ResponseMessageCreator;
-import com.epam.digital.data.platform.model.core.kafka.EntityId;
 import com.epam.digital.data.platform.model.core.kafka.Request;
 import com.epam.digital.data.platform.model.core.kafka.Response;
 import com.epam.digital.data.platform.model.core.kafka.Status;
@@ -33,7 +32,7 @@ import static com.epam.digital.data.platform.kafkaapi.core.util.ExceptionMessage
 import static com.epam.digital.data.platform.kafkaapi.core.util.ExceptionMessage.INPUT_IS_INVALID_MESSAGE;
 import static com.epam.digital.data.platform.kafkaapi.core.util.ExceptionMessage.UNEXPECTED_EXCEPTION_MESSAGE_FORMAT;
 
-public abstract class GenericCreateCommandListener<O> {
+public abstract class GenericCreateCommandListener<I, O> {
 
   private final Logger log = LoggerFactory.getLogger(GenericCreateCommandListener.class);
 
@@ -42,14 +41,14 @@ public abstract class GenericCreateCommandListener<O> {
   @Autowired
   private ResponseMessageCreator responseMessageCreator;
 
-  private final CreateCommandHandler<O> commandHandler;
+  private final CreateCommandHandler<I, O> commandHandler;
 
-  protected GenericCreateCommandListener(CreateCommandHandler<O> commandHandler) {
+  protected GenericCreateCommandListener(CreateCommandHandler<I, O> commandHandler) {
     this.commandHandler = commandHandler;
   }
 
-  public Message<Response<EntityId>> create(String key, Request<O> input) {
-    Response<EntityId> response = new Response<>();
+  public Message<Response<O>> create(String key, Request<I> input) {
+    Response<O> response = new Response<>();
 
     try {
       var validationResult = inputValidationService.validate(key, input);

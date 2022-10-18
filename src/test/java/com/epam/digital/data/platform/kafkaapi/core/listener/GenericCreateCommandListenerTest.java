@@ -30,6 +30,7 @@ import com.epam.digital.data.platform.kafkaapi.core.model.ValidationResult;
 import com.epam.digital.data.platform.kafkaapi.core.service.InputValidationService;
 import com.epam.digital.data.platform.kafkaapi.core.service.ResponseMessageCreator;
 import com.epam.digital.data.platform.kafkaapi.core.util.MockEntity;
+import com.epam.digital.data.platform.model.core.kafka.EntityId;
 import com.epam.digital.data.platform.model.core.kafka.Request;
 import com.epam.digital.data.platform.model.core.kafka.Response;
 import com.epam.digital.data.platform.model.core.kafka.Status;
@@ -57,7 +58,7 @@ class GenericCreateCommandListenerTest {
   @MockBean
   ResponseMessageCreator responseMessageCreator;
   @Autowired
-  private GenericCreateCommandListener<MockEntity> commandListener;
+  private GenericCreateCommandListener<MockEntity, EntityId> commandListener;
 
   @Captor
   private ArgumentCaptor<Response<Void>> responseNoPayloadCaptor;

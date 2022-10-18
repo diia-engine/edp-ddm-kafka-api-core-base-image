@@ -29,7 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.Map;
 import java.util.UUID;
 
-public abstract class AbstractCreateCommandHandler<T> implements CreateCommandHandler<T> {
+public abstract class AbstractCreateCommandHandler<T> implements CreateCommandHandler<T, EntityId> {
 
   @Autowired
   private JwtInfoProvider jwtInfoProvider;

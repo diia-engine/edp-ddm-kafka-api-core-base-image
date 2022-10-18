@@ -33,7 +33,7 @@ import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.SendTo;
 
 @TestComponent
-public class GenericCreateCommandListenerTestImpl extends GenericCreateCommandListener<MockEntity> {
+public class GenericCreateCommandListenerTestImpl extends GenericCreateCommandListener<MockEntity, EntityId> {
 
   protected GenericCreateCommandListenerTestImpl(CreateCommandHandlerTestImpl commandHandler) {
     super(commandHandler);

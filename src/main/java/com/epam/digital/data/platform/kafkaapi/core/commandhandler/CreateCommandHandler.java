@@ -16,11 +16,10 @@
 
 package com.epam.digital.data.platform.kafkaapi.core.commandhandler;
 
-import com.epam.digital.data.platform.model.core.kafka.EntityId;
 import com.epam.digital.data.platform.model.core.kafka.Request;
 import org.springframework.cloud.sleuth.annotation.NewSpan;
 
-public interface CreateCommandHandler<T> {
+public interface CreateCommandHandler<I, O> {
   @NewSpan
-  EntityId save(Request<T> input);
+  O save(Request<I> input);
 }

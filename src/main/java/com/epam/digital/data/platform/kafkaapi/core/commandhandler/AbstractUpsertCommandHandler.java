@@ -25,7 +25,7 @@ import java.util.UUID;
 
 public abstract class AbstractUpsertCommandHandler<T> implements UpsertCommandHandler<T> {
 
-  private final CreateCommandHandler<T> createCommandHandler;
+  private final CreateCommandHandler<T, EntityId> createCommandHandler;
   private final UpdateCommandHandler<T> updateCommandHandler;
   private final EntityConverter<T> entityConverter;
   private final TableDataProvider tableDataProvider;
@@ -33,7 +33,7 @@ public abstract class AbstractUpsertCommandHandler<T> implements UpsertCommandHa
   protected AbstractUpsertCommandHandler(
       EntityConverter<T> entityConverter,
       TableDataProvider tableDataProvider,
-      CreateCommandHandler<T> createCommandHandler,
+      CreateCommandHandler<T, EntityId> createCommandHandler,
       UpdateCommandHandler<T> updateCommandHandler) {
     this.entityConverter = entityConverter;
     this.tableDataProvider = tableDataProvider;
