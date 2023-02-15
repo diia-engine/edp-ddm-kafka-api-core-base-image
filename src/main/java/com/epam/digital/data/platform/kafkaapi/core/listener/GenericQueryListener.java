@@ -57,7 +57,7 @@ public class GenericQueryListener<I, O> {
     try {
       var validationResult = inputValidationService.validate(key, input);
       if (!validationResult.isValid()) {
-        log.info(INPUT_IS_INVALID);
+        log.warn(INPUT_IS_INVALID);
         response.setStatus(validationResult.getStatus());
         return responseMessageCreator.createMessageByPayloadSize(response);
       }

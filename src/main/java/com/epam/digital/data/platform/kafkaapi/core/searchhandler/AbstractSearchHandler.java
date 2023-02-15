@@ -17,66 +17,90 @@
 package com.epam.digital.data.platform.kafkaapi.core.searchhandler;
 
 import com.epam.digital.data.platform.kafkaapi.core.audit.AuditableDatabaseOperation;
-import com.epam.digital.data.platform.kafkaapi.core.exception.ForbiddenOperationException;
 import com.epam.digital.data.platform.kafkaapi.core.exception.SqlErrorException;
 import com.epam.digital.data.platform.kafkaapi.core.util.Operation;
 import com.epam.digital.data.platform.model.core.kafka.Request;
-import java.util.List;
-
-import com.epam.digital.data.platform.starter.security.dto.JwtClaimsDto;
+import com.epam.digital.data.platform.model.core.search.SearchConditionPage;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.collections4.CollectionUtils;
 import org.jooq.Condition;
 import org.jooq.DSLContext;
+import org.jooq.Record;
 import org.jooq.SelectFieldOrAsterisk;
 import org.jooq.impl.DSL;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+
+import java.util.List;
 
 public abstract class AbstractSearchHandler<I, O> implements SearchHandler<I, O> {
 
   @Autowired
   protected DSLContext context;
 
+  @Autowired
+  @Qualifier("jooqMapper")
+  private ObjectMapper objectMapper;
+
   @AuditableDatabaseOperation(Operation.SEARCH)
   @Override
-  public List<O> search(Request<I> input) {
+  public SearchConditionPage<O> search(Request<I> input) {
+    var response = new SearchConditionPage<O>();
+    response.setContent(getContent(input));
+    return response;
+  }
+
+  protected Integer count(Request<I> input) {
+    I searchCriteria = input.getPayload();
+    return context
+            .selectCount()
+            .from(DSL.table(tableName()))
+            .where(whereClause(searchCriteria))
+            .and(getCommonCondition(input))
+            .fetchOne(0, Integer.class);
+  }
+
+  protected List<O> getContent(Request<I> input) {
     I searchCriteria = input.getPayload();
 
-    validateAccess(input);
-
     try {
-      return
-          context
-              .select(selectFields())
-              .from(DSL.table(tableName()))
-              .where(whereClause(searchCriteria))
-                  .and(getCommonCondition(input))
-              .limit(offset(searchCriteria), limit(searchCriteria))
-              .fetchInto(entityType());
+      var selectFields = selectFields();
+      var selectRequest =
+              context
+                      .select(selectFields)
+                      .from(DSL.table(tableName()))
+                      .where(whereClause(searchCriteria))
+                      .and(getCommonCondition(input))
+                      .limit(offset(searchCriteria), limit(searchCriteria));
+      return CollectionUtils.size(selectFields) > 1
+              ? selectRequest.fetchInto(entityType())
+              : selectRequest.fetch(this::mapFieldsToEntity);
     } catch (Exception e) {
       throw new SqlErrorException("Can not read from DB", e);
     }
   }
 
-  public void validateAccess(Request<I> input) {
+  private O mapFieldsToEntity(Record src) {
+    return objectMapper.convertValue(src.intoMap(), entityType());
   }
 
-  public Condition getCommonCondition(Request<I> input) {
+  protected Condition getCommonCondition(Request<I> input) {
     return DSL.noCondition();
   }
 
   protected abstract Condition whereClause(I searchCriteria);
 
-  public abstract String tableName();
+  protected abstract String tableName();
 
-  public abstract Class<O> entityType();
+  protected abstract Class<O> entityType();
 
-  public abstract List<SelectFieldOrAsterisk> selectFields();
+  protected abstract List<SelectFieldOrAsterisk> selectFields();
 
-  public Integer limit(I searchCriteria) {
+  protected Integer limit(I searchCriteria) {
     return null;
   }
 
-  public Integer offset(I searchCriteria) {
+  protected Integer offset(I searchCriteria) {
     return null;
   }
 }

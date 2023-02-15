@@ -17,15 +17,15 @@
 package com.epam.digital.data.platform.kafkaapi.core.searchhandler.impl;
 
 import com.epam.digital.data.platform.kafkaapi.core.searchhandler.AbstractSearchHandler;
+import com.epam.digital.data.platform.kafkaapi.core.util.MockEntity;
 import com.epam.digital.data.platform.kafkaapi.core.util.MockEntityContains;
 import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
 import org.jooq.Condition;
 import org.jooq.SelectFieldOrAsterisk;
 import org.jooq.impl.DSL;
 
-public class AbstractSearchHandlerTestImpl extends AbstractSearchHandler<MockEntityContains, UUID> {
+public class AbstractSearchHandlerTestImpl extends AbstractSearchHandler<MockEntityContains, MockEntity> {
 
   private String tableName = "table_name";
 
@@ -40,13 +40,13 @@ public class AbstractSearchHandlerTestImpl extends AbstractSearchHandler<MockEnt
   }
 
   @Override
-  public Class<UUID> entityType() {
-    return UUID.class;
+  public Class<MockEntity> entityType() {
+    return MockEntity.class;
   }
 
   @Override
   public List<SelectFieldOrAsterisk> selectFields() {
-    return Collections.singletonList(DSL.field("field"));
+    return Collections.singletonList(DSL.field("consent_id"));
   }
 
   public void setTableName(String tableName) {

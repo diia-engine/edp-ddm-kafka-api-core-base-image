@@ -23,13 +23,13 @@ import com.epam.digital.data.platform.kafkaapi.core.service.ResponseMessageCreat
 import com.epam.digital.data.platform.model.core.kafka.Request;
 import com.epam.digital.data.platform.model.core.kafka.Response;
 import com.epam.digital.data.platform.model.core.kafka.Status;
-import java.util.List;
+import com.epam.digital.data.platform.model.core.search.SearchConditionPage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.Message;
 
-public abstract class GenericSearchListener<I, O> {
+public abstract class GenericSearchListener<I, U, O> {
 
   private static final String INPUT_IS_INVALID = "Input is invalid";
 
@@ -40,25 +40,25 @@ public abstract class GenericSearchListener<I, O> {
   @Autowired
   private ResponseMessageCreator responseMessageCreator;
 
-  private final AbstractSearchHandler<I, O> searchHandler;
+  private final AbstractSearchHandler<I, U> searchHandler;
 
-  protected GenericSearchListener(AbstractSearchHandler<I, O> searchHandler) {
+  protected GenericSearchListener(AbstractSearchHandler<I, U> searchHandler) {
     this.searchHandler = searchHandler;
   }
 
-  public Message<Response<List<O>>> search(String key, Request<I> input) {
-    Response<List<O>> response = new Response<>();
+  public Message<Response<O>> search(String key, Request<I> input) {
+    Response<O> response = new Response<>();
 
     try {
       var validationResult = inputValidationService.validate(key, input);
       if (!validationResult.isValid()) {
-        log.info(INPUT_IS_INVALID);
+        log.warn(INPUT_IS_INVALID);
         response.setStatus(validationResult.getStatus());
         return responseMessageCreator.createMessageByPayloadSize(response);
       }
 
-      List<O> found = searchHandler.search(input);
-      response.setPayload(found);
+      var found = searchHandler.search(input);
+      response.setPayload(getResponsePayload(found));
       response.setStatus(Status.SUCCESS);
     } catch (RequestProcessingException e) {
       log.error("Exception while request processing", e);
@@ -72,5 +72,7 @@ public abstract class GenericSearchListener<I, O> {
 
     return responseMessageCreator.createMessageByPayloadSize(response);
   }
+
+  protected abstract O getResponsePayload(SearchConditionPage<U> page);
 }
 

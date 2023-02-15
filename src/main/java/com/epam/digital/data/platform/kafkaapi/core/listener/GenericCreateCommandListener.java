@@ -53,7 +53,7 @@ public abstract class GenericCreateCommandListener<I, O> {
     try {
       var validationResult = inputValidationService.validate(key, input);
       if (!validationResult.isValid()) {
-        log.info(INPUT_IS_INVALID_MESSAGE);
+        log.warn(INPUT_IS_INVALID_MESSAGE);
         response.setStatus(validationResult.getStatus());
         return responseMessageCreator.createMessageByPayloadSize(response);
       }

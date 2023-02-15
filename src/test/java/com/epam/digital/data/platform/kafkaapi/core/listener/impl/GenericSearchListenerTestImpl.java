@@ -25,12 +25,14 @@ import com.epam.digital.data.platform.kafkaapi.core.util.Operation;
 import com.epam.digital.data.platform.model.core.kafka.Request;
 import com.epam.digital.data.platform.model.core.kafka.Response;
 import java.util.List;
+
+import com.epam.digital.data.platform.model.core.search.SearchConditionPage;
 import org.springframework.boot.test.context.TestComponent;
 import org.springframework.messaging.Message;
 
 @TestComponent
 public class GenericSearchListenerTestImpl
-    extends GenericSearchListener<MockEntityContains, MockEntity> {
+    extends GenericSearchListener<MockEntityContains, MockEntity, List<MockEntity>> {
 
   protected GenericSearchListenerTestImpl(
       AbstractSearchHandler<MockEntityContains, MockEntity> searchHandler) {
@@ -41,6 +43,11 @@ public class GenericSearchListenerTestImpl
   @Override
   public Message<Response<List<MockEntity>>> search(String key, Request<MockEntityContains> input) {
     return super.search(key, input);
+  }
+
+  @Override
+  protected List<MockEntity> getResponsePayload(SearchConditionPage<MockEntity> page) {
+    return page.getContent();
   }
 }
 
