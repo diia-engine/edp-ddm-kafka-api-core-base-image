@@ -29,6 +29,7 @@ import com.epam.digital.data.platform.model.core.kafka.RequestContext;
 import com.epam.digital.data.platform.model.core.kafka.Response;
 import com.epam.digital.data.platform.model.core.kafka.SecurityContext;
 import com.epam.digital.data.platform.model.core.kafka.Status;
+import com.epam.digital.data.platform.model.core.search.SearchConditionPage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -78,8 +79,10 @@ class GenericSearchListenerTest {
   @Test
   void shouldSearchInHandler() {
     var c = mockResult();
+    var scResponse = new SearchConditionPage<MockEntity>();
+    scResponse.setContent(List.of(c));
 
-    given(searchHandler.search(any(Request.class))).willReturn(List.of(c));
+    given(searchHandler.search(any(Request.class))).willReturn(scResponse);
     var mockResponse = new Response<>();
     mockResponse.setPayload(List.of(c));
     given(responseMessageCreator.createMessageByPayloadSize(any()))
