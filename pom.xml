@@ -31,6 +31,7 @@
     <spring.cloud.version>2021.0.0</spring.cloud.version>
     <jackson.core.version>2.12.0</jackson.core.version>
     <spring-security-core.version>5.7.5</spring-security-core.version>
+    <postgresql.version>42.3.3</postgresql.version>
     <sonar.coverage.exclusions>
       **/config/**/*,
       **/util/JooqDataTypes*,
@@ -186,6 +187,7 @@
     <dependency>
       <groupId>org.postgresql</groupId>
       <artifactId>postgresql</artifactId>
+      <version>${postgresql.version}</version>
     </dependency>
 
     <dependency>
