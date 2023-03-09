@@ -72,17 +72,17 @@ public class ResponseMessageCreator {
         datafactoryResponseCephService.put(
             cephBucketName, cephContentKey, new String(serializedResponse, StandardCharsets.UTF_8));
         return MessageBuilder.withPayload(response)
-                .setHeader(KafkaHeaders.MESSAGE_KEY, traceProvider.getRequestId())
-                .setHeader(ResponseHeaders.CEPH_RESPONSE_KEY, cephContentKey)
-                .build();
+            .setHeader(KafkaHeaders.MESSAGE_KEY, traceProvider.getRequestId())
+            .setHeader(ResponseHeaders.CEPH_RESPONSE_KEY, cephContentKey)
+            .build();
       } catch (CephCommunicationException e) {
-        log.error("Exception while communication with ceph", e);
+        log.error("Exception while communication with ceph: {}", e.getMessage(), e);
         response.setStatus(Status.THIRD_PARTY_SERVICE_UNAVAILABLE);
       } catch (MisconfigurationException e) {
-        log.error("Incorrect Ceph configuration", e);
+        log.error("Incorrect Ceph configuration: {}", e.getMessage(), e);
         response.setStatus(Status.INTERNAL_CONTRACT_VIOLATION);
       } catch (Exception e) {
-        log.error("Can not store large response", e);
+        log.error("Can not store large response: {}", e.getMessage(), e);
         response.setStatus(Status.OPERATION_FAILED);
       }
     } else {
@@ -90,7 +90,7 @@ public class ResponseMessageCreator {
     }
 
     return MessageBuilder.withPayload(response)
-            .setHeader(KafkaHeaders.MESSAGE_KEY, traceProvider.getRequestId())
-            .build();
+        .setHeader(KafkaHeaders.MESSAGE_KEY, traceProvider.getRequestId())
+        .build();
   }
 }

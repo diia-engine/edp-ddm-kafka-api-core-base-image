@@ -22,9 +22,8 @@ import com.epam.digital.data.platform.model.core.kafka.SecurityContext;
 import com.epam.digital.data.platform.starter.security.dto.JwtClaimsDto;
 import com.epam.digital.data.platform.starter.security.exception.JwtParsingException;
 import com.epam.digital.data.platform.starter.security.jwt.TokenParser;
-import org.springframework.stereotype.Component;
-
 import java.util.Optional;
+import org.springframework.stereotype.Component;
 
 @Component
 public class JwtInfoProvider {
@@ -40,7 +39,8 @@ public class JwtInfoProvider {
     try {
       return tokenParser.parseClaims(accessToken);
     } catch (JwtParsingException e) {
-      throw new JwtValidationException("Error while getting JWT claims", e);
+      var message = String.format("Error while getting JWT claims: %s", e.getMessage());
+      throw new JwtValidationException(message, e);
     }
   }
 

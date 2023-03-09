@@ -37,7 +37,7 @@ public abstract class GenericDeleteCommandListener<O> {
     try {
       var validationResult = inputValidationService.validate(key, input);
       if (!validationResult.isValid()) {
-        log.warn(INPUT_IS_INVALID_MESSAGE);
+        log.warn(INPUT_IS_INVALID_MESSAGE, validationResult.getStatus());
         response.setStatus(validationResult.getStatus());
         return responseMessageCreator.createMessageByPayloadSize(response);
       }
@@ -45,11 +45,12 @@ public abstract class GenericDeleteCommandListener<O> {
       commandHandler.delete(input);
       response.setStatus(Status.NO_CONTENT);
     } catch (RequestProcessingException e) {
-      log.error(GENERIC_REQUEST_PROCESSING_EXCEPTION_MESSAGE, e);
+      log.error(GENERIC_REQUEST_PROCESSING_EXCEPTION_MESSAGE, e.getMessage(), e);
       response.setStatus(e.getKafkaResponseStatus());
       response.setDetails(e.getDetails());
     } catch (Exception e) {
-      var exceptionMessage = String.format(UNEXPECTED_EXCEPTION_MESSAGE_FORMAT, "delete");
+      var exceptionMessage = String.format(UNEXPECTED_EXCEPTION_MESSAGE_FORMAT, "delete",
+          e.getMessage());
       log.error(exceptionMessage, e);
       response.setStatus(Status.OPERATION_FAILED);
       response.setDetails(exceptionMessage);

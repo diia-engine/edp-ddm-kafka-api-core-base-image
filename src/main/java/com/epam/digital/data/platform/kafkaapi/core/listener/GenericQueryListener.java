@@ -16,26 +16,26 @@
 
 package com.epam.digital.data.platform.kafkaapi.core.listener;
 
+import static com.epam.digital.data.platform.kafkaapi.core.util.ExceptionMessage.GENERIC_REQUEST_PROCESSING_EXCEPTION_MESSAGE;
+import static com.epam.digital.data.platform.kafkaapi.core.util.ExceptionMessage.INPUT_IS_INVALID_MESSAGE;
+import static com.epam.digital.data.platform.kafkaapi.core.util.ExceptionMessage.UNEXPECTED_EXCEPTION_MESSAGE_FORMAT;
+
+import com.epam.digital.data.platform.kafkaapi.core.exception.RequestProcessingException;
 import com.epam.digital.data.platform.kafkaapi.core.queryhandler.AbstractQueryHandler;
 import com.epam.digital.data.platform.kafkaapi.core.service.InputValidationService;
 import com.epam.digital.data.platform.kafkaapi.core.service.ResponseMessageCreator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import com.epam.digital.data.platform.kafkaapi.core.exception.RequestProcessingException;
 import com.epam.digital.data.platform.model.core.kafka.Request;
 import com.epam.digital.data.platform.model.core.kafka.Response;
 import com.epam.digital.data.platform.model.core.kafka.Status;
-import org.springframework.messaging.Message;
-
 import java.util.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.Message;
 
 public class GenericQueryListener<I, O> {
 
   protected static final String DIGITAL_SEAL = "digital-seal";
-
-  private static final String INPUT_IS_INVALID = "Input is invalid";
-  private static final String EXCEPTION_WHILE_REQUEST_PROCESSING = "Exception while request processing";
 
   private final Logger log = LoggerFactory.getLogger(GenericQueryListener.class);
 
@@ -57,7 +57,7 @@ public class GenericQueryListener<I, O> {
     try {
       var validationResult = inputValidationService.validate(key, input);
       if (!validationResult.isValid()) {
-        log.warn(INPUT_IS_INVALID);
+        log.warn(INPUT_IS_INVALID_MESSAGE, validationResult.getStatus());
         response.setStatus(validationResult.getStatus());
         return responseMessageCreator.createMessageByPayloadSize(response);
       }
@@ -70,13 +70,15 @@ public class GenericQueryListener<I, O> {
         response.setStatus(Status.NOT_FOUND);
       }
     } catch (RequestProcessingException e) {
-      log.error(EXCEPTION_WHILE_REQUEST_PROCESSING, e);
+      log.error(GENERIC_REQUEST_PROCESSING_EXCEPTION_MESSAGE, e.getMessage(), e);
       response.setStatus(e.getKafkaResponseStatus());
       response.setDetails(e.getDetails());
     } catch (Exception e) {
-      log.error("Unexpected exception while executing the 'read' method", e);
+      var exceptionMessage = String.format(UNEXPECTED_EXCEPTION_MESSAGE_FORMAT, "read",
+          e.getMessage());
+      log.error(exceptionMessage, e);
       response.setStatus(Status.OPERATION_FAILED);
-      response.setDetails("Unexpected exception while executing the 'read' method");
+      response.setDetails(exceptionMessage);
     }
 
     return responseMessageCreator.createMessageByPayloadSize(response);

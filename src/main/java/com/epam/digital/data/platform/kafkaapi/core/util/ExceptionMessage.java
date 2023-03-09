@@ -18,9 +18,10 @@ package com.epam.digital.data.platform.kafkaapi.core.util;
 
 public final class ExceptionMessage {
 
-  public static final String INPUT_IS_INVALID_MESSAGE = "Input is invalid";
-  public static final String GENERIC_REQUEST_PROCESSING_EXCEPTION_MESSAGE = "Exception while request processing";
-  public static final String UNEXPECTED_EXCEPTION_MESSAGE_FORMAT = "Unexpected exception while executing the %s method";
+  public static final String INPUT_IS_INVALID_MESSAGE = "Input is invalid: {}";
+  public static final String GENERIC_REQUEST_PROCESSING_EXCEPTION_MESSAGE = "Exception while request processing: {}";
+  public static final String UNEXPECTED_EXCEPTION_MESSAGE_FORMAT = "Unexpected exception while executing the '%s' method: %s";
 
-  private ExceptionMessage() {}
+  private ExceptionMessage() {
+  }
 }

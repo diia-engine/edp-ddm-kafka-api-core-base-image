@@ -28,7 +28,6 @@ import com.epam.digital.data.platform.model.core.kafka.Request;
 import com.epam.digital.data.platform.starter.security.dto.JwtClaimsDto;
 import java.util.List;
 import java.util.Optional;
-
 import org.jooq.Condition;
 import org.jooq.DSLContext;
 import org.jooq.SelectFieldOrAsterisk;
@@ -38,6 +37,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public abstract class AbstractQueryHandler<I, O> implements QueryHandler<I, O> {
+
   private final Logger log = LoggerFactory.getLogger(AbstractQueryHandler.class);
 
   @Autowired
@@ -56,22 +56,24 @@ public abstract class AbstractQueryHandler<I, O> implements QueryHandler<I, O> {
   @AuditableDatabaseOperation(Operation.READ)
   @Override
   public Optional<O> findById(Request<I> input) {
-    log.info("Reading from DB");
+    var tableName = tableDataProvider.tableName();
+    log.info("Reading from table {}", tableName);
 
     validateAccess(input);
 
     I id = input.getPayload();
     try {
       final O dto =
-              context
-                      .select(selectFields())
-                      .from(DSL.table(tableDataProvider.tableName()))
-                      .where(DSL.field(tableDataProvider.pkColumnName()).eq(id))
-                      .and(getCommonCondition(input))
-                      .fetchOneInto(entityType());
+          context
+              .select(selectFields())
+              .from(DSL.table(tableName))
+              .where(DSL.field(tableDataProvider.pkColumnName()).eq(id))
+              .and(getCommonCondition(input))
+              .fetchOneInto(entityType());
       return Optional.ofNullable(dto);
     } catch (Exception e) {
-      throw new SqlErrorException("Can not read from DB", e);
+      var message = String.format("Couldn't read from table '%s': %s", tableName, e.getMessage());
+      throw new SqlErrorException(message, e);
     }
   }
 
@@ -79,7 +81,7 @@ public abstract class AbstractQueryHandler<I, O> implements QueryHandler<I, O> {
     JwtClaimsDto userClaims = jwtInfoProvider.getUserClaims(input);
     if (!accessPermissionService.hasReadAccess(getFieldsToCheckAccess(), userClaims)) {
       throw new ForbiddenOperationException(
-              "User has invalid role for search by ID from " + tableDataProvider.tableName());
+          "User has invalid role for search by ID from " + tableDataProvider.tableName());
     }
   }
 

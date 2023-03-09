@@ -62,21 +62,23 @@ public abstract class AbstractSearchHandler<I, O> implements SearchHandler<I, O>
 
   protected List<O> getContent(Request<I> input) {
     I searchCriteria = input.getPayload();
+    var tableName = tableName();
 
     try {
       var selectFields = selectFields();
       var selectRequest =
               context
                       .select(selectFields)
-                      .from(DSL.table(tableName()))
-                      .where(whereClause(searchCriteria))
-                      .and(getCommonCondition(input))
-                      .limit(offset(searchCriteria), limit(searchCriteria));
+                      .from(DSL.table(tableName))
+              .where(whereClause(searchCriteria))
+              .and(getCommonCondition(input))
+              .limit(offset(searchCriteria), limit(searchCriteria));
       return CollectionUtils.size(selectFields) > 1
               ? selectRequest.fetchInto(entityType())
               : selectRequest.fetch(this::mapFieldsToEntity);
     } catch (Exception e) {
-      throw new SqlErrorException("Can not read from DB", e);
+      var message = String.format("Couldn't read from table '%s': %s", tableName, e.getMessage());
+      throw new SqlErrorException(message, e);
     }
   }
 
