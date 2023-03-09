@@ -50,7 +50,7 @@ public class DmlOperationHandler {
   @AuditableDatabaseOperation(Operation.CREATE)
   @Transactional
   public String save(DmlOperationArgs args) {
-    log.info("Inserting into DB");
+    log.info("Inserting into table {}", args.getTableName());
 
     var connection = DataSourceUtils.getConnection(dataSource);
     try (CallableStatement statement = connection.prepareCall(DmlOperation.I.getSqlString())) {
@@ -76,7 +76,7 @@ public class DmlOperationHandler {
   @AuditableDatabaseOperation(Operation.UPDATE)
   @Transactional
   public void update(DmlOperationArgs args) {
-    log.info("Updating in DB");
+    log.info("Updating table {}", args.getTableName());
 
     var connection = DataSourceUtils.getConnection(dataSource);
     try (CallableStatement statement = connection.prepareCall(DmlOperation.U.getSqlString())) {
@@ -97,7 +97,7 @@ public class DmlOperationHandler {
   @AuditableDatabaseOperation(Operation.DELETE)
   @Transactional
   public void delete(DmlOperationArgs args) {
-    log.info("Deleting from DB");
+    log.info("Deleting from  table {}", args.getTableName());
 
     var connection = DataSourceUtils.getConnection(dataSource);
     try (CallableStatement statement = connection.prepareCall(DmlOperation.D.getSqlString())) {

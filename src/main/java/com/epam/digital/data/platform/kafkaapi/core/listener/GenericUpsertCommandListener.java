@@ -54,7 +54,7 @@ public abstract class GenericUpsertCommandListener<O> {
     try {
       var validationResult = inputValidationService.validate(key, input);
       if (!validationResult.isValid()) {
-        log.info(INPUT_IS_INVALID_MESSAGE);
+        log.info(INPUT_IS_INVALID_MESSAGE, validationResult.getStatus());
         response.setStatus(validationResult.getStatus());
         return responseMessageCreator.createMessageByPayloadSize(response);
       }
@@ -62,11 +62,12 @@ public abstract class GenericUpsertCommandListener<O> {
       response.setPayload(commandHandler.upsert(input));
       response.setStatus(Status.SUCCESS);
     } catch (RequestProcessingException e) {
-      log.error(GENERIC_REQUEST_PROCESSING_EXCEPTION_MESSAGE, e);
+      log.error(GENERIC_REQUEST_PROCESSING_EXCEPTION_MESSAGE, e.getMessage(), e);
       response.setStatus(e.getKafkaResponseStatus());
       response.setDetails(e.getDetails());
     } catch (Exception e) {
-      var exceptionMessage = String.format(UNEXPECTED_EXCEPTION_MESSAGE_FORMAT, "upsert");
+      var exceptionMessage = String.format(UNEXPECTED_EXCEPTION_MESSAGE_FORMAT, "upsert",
+          e.getMessage());
       log.error(exceptionMessage, e);
       response.setStatus(Status.OPERATION_FAILED);
       response.setDetails(exceptionMessage);

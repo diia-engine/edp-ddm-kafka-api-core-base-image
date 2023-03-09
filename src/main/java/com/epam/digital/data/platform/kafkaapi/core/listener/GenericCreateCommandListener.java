@@ -16,6 +16,10 @@
 
 package com.epam.digital.data.platform.kafkaapi.core.listener;
 
+import static com.epam.digital.data.platform.kafkaapi.core.util.ExceptionMessage.GENERIC_REQUEST_PROCESSING_EXCEPTION_MESSAGE;
+import static com.epam.digital.data.platform.kafkaapi.core.util.ExceptionMessage.INPUT_IS_INVALID_MESSAGE;
+import static com.epam.digital.data.platform.kafkaapi.core.util.ExceptionMessage.UNEXPECTED_EXCEPTION_MESSAGE_FORMAT;
+
 import com.epam.digital.data.platform.kafkaapi.core.commandhandler.CreateCommandHandler;
 import com.epam.digital.data.platform.kafkaapi.core.exception.RequestProcessingException;
 import com.epam.digital.data.platform.kafkaapi.core.service.InputValidationService;
@@ -27,10 +31,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.Message;
-
-import static com.epam.digital.data.platform.kafkaapi.core.util.ExceptionMessage.GENERIC_REQUEST_PROCESSING_EXCEPTION_MESSAGE;
-import static com.epam.digital.data.platform.kafkaapi.core.util.ExceptionMessage.INPUT_IS_INVALID_MESSAGE;
-import static com.epam.digital.data.platform.kafkaapi.core.util.ExceptionMessage.UNEXPECTED_EXCEPTION_MESSAGE_FORMAT;
 
 public abstract class GenericCreateCommandListener<I, O> {
 
@@ -53,7 +53,7 @@ public abstract class GenericCreateCommandListener<I, O> {
     try {
       var validationResult = inputValidationService.validate(key, input);
       if (!validationResult.isValid()) {
-        log.warn(INPUT_IS_INVALID_MESSAGE);
+        log.warn(INPUT_IS_INVALID_MESSAGE, validationResult.getStatus());
         response.setStatus(validationResult.getStatus());
         return responseMessageCreator.createMessageByPayloadSize(response);
       }
@@ -61,11 +61,12 @@ public abstract class GenericCreateCommandListener<I, O> {
       response.setPayload(commandHandler.save(input));
       response.setStatus(Status.CREATED);
     } catch (RequestProcessingException e) {
-      log.error(GENERIC_REQUEST_PROCESSING_EXCEPTION_MESSAGE, e);
+      log.error(GENERIC_REQUEST_PROCESSING_EXCEPTION_MESSAGE, e.getMessage(), e);
       response.setStatus(e.getKafkaResponseStatus());
       response.setDetails(e.getDetails());
     } catch (Exception e) {
-      var exceptionMessage = String.format(UNEXPECTED_EXCEPTION_MESSAGE_FORMAT, "create");
+      var exceptionMessage = String.format(UNEXPECTED_EXCEPTION_MESSAGE_FORMAT, "create",
+          e.getMessage());
       log.error(exceptionMessage, e);
       response.setStatus(Status.OPERATION_FAILED);
       response.setDetails(exceptionMessage);

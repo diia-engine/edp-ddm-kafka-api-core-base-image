@@ -95,7 +95,8 @@ public class JwtValidationService {
       return JWTParser.parse(accessToken)
           .getJWTClaimsSet();
     } catch (ParseException e) {
-      throw new JwtValidationException("Error while JWT parsing", e);
+      var message = String.format("Error while JWT parsing: %s", e.getMessage());
+      throw new JwtValidationException(message, e);
     }
   }
 
@@ -114,7 +115,7 @@ public class JwtValidationService {
 
   private boolean retryableIsVerifiedToken(String accessToken, String issuerRealm) {
     PublicKey keycloakPublicKey = allowedRealmsRepresentations.get(issuerRealm).getPublicKey();
-    if(isVerifiedToken(accessToken, keycloakPublicKey)) {
+    if (isVerifiedToken(accessToken, keycloakPublicKey)) {
       return true;
     }
     log.info("Update realm information and retry validate token");
@@ -130,11 +131,12 @@ public class JwtValidationService {
           .verify();
       return true;
     } catch (VerificationException e) {
-      log.error("JWT token is not valid", e);
+      var message = String.format("JWT token is not valid: %s", e.getMessage());
+      log.error(message, e);
       return false;
     }
   }
-  
+
   private void refreshAllowedRealmsRepresentations() {
     if (jwtValidationEnabled) {
       allowedRealmsRepresentations =

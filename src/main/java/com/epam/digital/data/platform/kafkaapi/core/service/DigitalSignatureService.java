@@ -74,50 +74,47 @@ public class DigitalSignatureService {
     }
 
     String signature = getSignature(key);
-    return verify(signature, serialize(input));
+    return verify(key, signature, serialize(input));
   }
 
   private String getSignature(String key) {
     try {
-      log.info("Reading Signature from Ceph");
+      log.info("Reading Signature from Ceph by key '{}'", key);
       return
           datafactoryCephService
               .getAsString(cephBucketName, key)
-              .orElseThrow(
-                  () ->
-                      new ExternalCommunicationException(
-                          "Digital signature does not found in ceph",
-                          Status.INTERNAL_CONTRACT_VIOLATION));
+              .orElseThrow(() -> new ExternalCommunicationException(
+                  String.format("Digital signature does not found in ceph. Signature key: %s", key),
+                  Status.INTERNAL_CONTRACT_VIOLATION)
+              );
     } catch (CephCommunicationException e) {
-      throw new ExternalCommunicationException(
-          "Exception while communication with ceph", e, Status.THIRD_PARTY_SERVICE_UNAVAILABLE);
+      var message = String.format("Exception while communication with ceph: %s", e.getMessage());
+      throw new ExternalCommunicationException(message, e, Status.THIRD_PARTY_SERVICE_UNAVAILABLE);
     } catch (MisconfigurationException e) {
-      throw new ExternalCommunicationException(
-          "Incorrect Ceph configuration", e, Status.INTERNAL_CONTRACT_VIOLATION);
+      var message = String.format("Incorrect Ceph configuration: %s", e.getMessage());
+      throw new ExternalCommunicationException(message, e, Status.INTERNAL_CONTRACT_VIOLATION);
     }
   }
 
-  private boolean verify(String signature, String data) {
+  private boolean verify(String key, String signature, String data) {
     try {
-      log.info("Verifying Signature");
+      log.info("Verifying Signature stored by key: {}", key);
       VerificationResponseDto responseDto =
           digitalSealRestClient.verify(new VerificationRequestDto(signature, data));
       return responseDto.isValid();
     } catch (BadRequestException e) {
-      throw new ExternalCommunicationException(
-          "Call to external digital signature service violates an internal contract",
-          e,
-          Status.INTERNAL_CONTRACT_VIOLATION);
+      var message = String.format(
+          "Call to external digital signature service violates an internal contract: %s",
+          e.getMessage());
+      throw new ExternalCommunicationException(message, e, Status.INTERNAL_CONTRACT_VIOLATION);
     } catch (InternalServerErrorException e) {
-      throw new ExternalCommunicationException(
-          "External digital signature service has internal server error",
-          e,
-          Status.THIRD_PARTY_SERVICE_UNAVAILABLE);
+      var message = String.format(
+          "External digital signature service has internal server error: %s", e.getMessage());
+      throw new ExternalCommunicationException(message, e, Status.THIRD_PARTY_SERVICE_UNAVAILABLE);
     } catch (RetryableException e) {
-      throw new ExternalCommunicationException(
-          "External digital signature service not responding",
-          e,
-          Status.THIRD_PARTY_SERVICE_UNAVAILABLE);
+      var message = String.format("External digital signature service not responding: %s",
+          e.getMessage());
+      throw new ExternalCommunicationException(message, e, Status.THIRD_PARTY_SERVICE_UNAVAILABLE);
     }
   }
 

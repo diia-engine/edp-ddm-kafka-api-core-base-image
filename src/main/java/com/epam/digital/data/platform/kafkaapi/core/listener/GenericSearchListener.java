@@ -16,6 +16,10 @@
 
 package com.epam.digital.data.platform.kafkaapi.core.listener;
 
+import static com.epam.digital.data.platform.kafkaapi.core.util.ExceptionMessage.GENERIC_REQUEST_PROCESSING_EXCEPTION_MESSAGE;
+import static com.epam.digital.data.platform.kafkaapi.core.util.ExceptionMessage.INPUT_IS_INVALID_MESSAGE;
+import static com.epam.digital.data.platform.kafkaapi.core.util.ExceptionMessage.UNEXPECTED_EXCEPTION_MESSAGE_FORMAT;
+
 import com.epam.digital.data.platform.kafkaapi.core.exception.RequestProcessingException;
 import com.epam.digital.data.platform.kafkaapi.core.searchhandler.AbstractSearchHandler;
 import com.epam.digital.data.platform.kafkaapi.core.service.InputValidationService;
@@ -30,8 +34,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.Message;
 
 public abstract class GenericSearchListener<I, U, O> {
-
-  private static final String INPUT_IS_INVALID = "Input is invalid";
 
   private final Logger log = LoggerFactory.getLogger(GenericSearchListener.class);
 
@@ -52,7 +54,7 @@ public abstract class GenericSearchListener<I, U, O> {
     try {
       var validationResult = inputValidationService.validate(key, input);
       if (!validationResult.isValid()) {
-        log.warn(INPUT_IS_INVALID);
+        log.warn(INPUT_IS_INVALID_MESSAGE, validationResult.getStatus());
         response.setStatus(validationResult.getStatus());
         return responseMessageCreator.createMessageByPayloadSize(response);
       }
@@ -61,13 +63,15 @@ public abstract class GenericSearchListener<I, U, O> {
       response.setPayload(getResponsePayload(found));
       response.setStatus(Status.SUCCESS);
     } catch (RequestProcessingException e) {
-      log.error("Exception while request processing", e);
+      log.error(GENERIC_REQUEST_PROCESSING_EXCEPTION_MESSAGE, e.getMessage(), e);
       response.setStatus(e.getKafkaResponseStatus());
       response.setDetails(e.getDetails());
     } catch (Exception e) {
-      log.error("Unexpected exception while executing the 'delete' method", e);
+      var exceptionMessage = String.format(UNEXPECTED_EXCEPTION_MESSAGE_FORMAT, "search",
+          e.getMessage());
+      log.error(exceptionMessage, e);
       response.setStatus(Status.OPERATION_FAILED);
-      response.setDetails("Unexpected exception while executing the 'delete' method");
+      response.setDetails(exceptionMessage);
     }
 
     return responseMessageCreator.createMessageByPayloadSize(response);

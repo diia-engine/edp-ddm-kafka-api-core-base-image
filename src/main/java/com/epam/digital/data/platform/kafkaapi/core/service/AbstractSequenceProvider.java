@@ -30,7 +30,7 @@ public abstract class AbstractSequenceProvider {
   private static final String SEQ = "{SEQ}";
   private static final String DATE_TIME = "\\{.+}";
   private static final String MESSAGE = "Value '%s' does not match pattern '%s'";
-  
+
   @Autowired
   private SequenceGenerator sequenceGenerator;
 
@@ -41,9 +41,9 @@ public abstract class AbstractSequenceProvider {
       Long nextValue = sequenceGenerator.nextValue(sequence.getName());
       pattern = pattern.replace("{SEQ}", nextValue.toString());
     }
-    while (pattern.contains("{") && pattern.contains("}") 
+    while (pattern.contains("{") && pattern.contains("}")
         && pattern.indexOf("{") < pattern.indexOf("}")) {
-      
+
       int beginIndex = pattern.indexOf("{");
       int endIndex = pattern.indexOf("}");
       String dateTimePattern = pattern.substring(beginIndex + 1, endIndex);
@@ -52,8 +52,9 @@ public abstract class AbstractSequenceProvider {
         pattern = pattern.replace("{" + dateTimePattern + "}",
             dateTimeFormatter.format(LocalDateTime.now()));
       } catch (IllegalArgumentException e) {
-        throw new PatternException(
-            String.format("Cannot render date-time with pattern '%s'", dateTimePattern), e);
+        var message = String.format("Cannot render date-time with pattern '%s': %s",
+            dateTimePattern, e.getMessage());
+        throw new PatternException(message, e);
       }
     }
     return pattern;
@@ -69,7 +70,7 @@ public abstract class AbstractSequenceProvider {
     } catch (Exception e) {
       throw new PatternException(String.format(MESSAGE, value, pattern), e);
     }
-    if(!isValid) {
+    if (!isValid) {
       throw new PatternException(String.format(MESSAGE, value, pattern));
     }
   }
