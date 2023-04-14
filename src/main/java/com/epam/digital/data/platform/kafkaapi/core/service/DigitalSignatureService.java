@@ -21,6 +21,7 @@ import com.epam.digital.data.platform.dso.api.dto.VerificationResponseDto;
 import com.epam.digital.data.platform.dso.client.DigitalSealRestClient;
 import com.epam.digital.data.platform.dso.client.exception.BadRequestException;
 import com.epam.digital.data.platform.dso.client.exception.InternalServerErrorException;
+import com.epam.digital.data.platform.dso.client.exception.InvalidSignatureException;
 import com.epam.digital.data.platform.integration.ceph.exception.CephCommunicationException;
 import com.epam.digital.data.platform.integration.ceph.exception.MisconfigurationException;
 import com.epam.digital.data.platform.integration.ceph.service.CephService;
@@ -102,6 +103,9 @@ public class DigitalSignatureService {
       VerificationResponseDto responseDto =
           digitalSealRestClient.verify(new VerificationRequestDto(signature, data));
       return responseDto.isValid();
+    } catch (InvalidSignatureException e) {
+      log.info("Signature verification failed", e);
+      return false;
     } catch (BadRequestException e) {
       var message = String.format(
           "Call to external digital signature service violates an internal contract: %s",

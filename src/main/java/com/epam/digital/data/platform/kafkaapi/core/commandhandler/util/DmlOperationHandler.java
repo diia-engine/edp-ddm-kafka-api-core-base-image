@@ -56,7 +56,7 @@ public class DmlOperationHandler {
     try (CallableStatement statement = connection.prepareCall(DmlOperation.I.getSqlString())) {
       Array rolesDbArray = connection
           .createArrayOf("text", JwtClaimsUtils.getRoles(args.getUserClaims()).toArray());
-      statement.setString(1, args.getTableName());
+      statement.setString(1, args.getTableName()); //NOSONAR
       statement.setString(2, HStoreConverter.toString(args.getSysValues()));
       statement.setString(3, HStoreConverter.toString(args.getBusinessValues()));
       statement.setArray(4, rolesDbArray);
@@ -82,7 +82,7 @@ public class DmlOperationHandler {
     try (CallableStatement statement = connection.prepareCall(DmlOperation.U.getSqlString())) {
       Array rolesDbArray = connection
           .createArrayOf("text", JwtClaimsUtils.getRoles(args.getUserClaims()).toArray());
-      statement.setString(1, args.getTableName());
+      statement.setString(1, args.getTableName()); //NOSONAR
       statement.setString(2, args.getEntityId());
       statement.setString(3, HStoreConverter.toString(args.getSysValues()));
       statement.setString(4, HStoreConverter.toString(args.getBusinessValues()));
@@ -103,7 +103,7 @@ public class DmlOperationHandler {
     try (CallableStatement statement = connection.prepareCall(DmlOperation.D.getSqlString())) {
       Array rolesDbArray = connection
           .createArrayOf("text", JwtClaimsUtils.getRoles(args.getUserClaims()).toArray());
-      statement.setString(1, args.getTableName());
+      statement.setString(1, args.getTableName()); //NOSONAR
       statement.setString(2, args.getEntityId());
       statement.setString(3, HStoreConverter.toString(args.getSysValues()));
       statement.setArray(4, rolesDbArray);
