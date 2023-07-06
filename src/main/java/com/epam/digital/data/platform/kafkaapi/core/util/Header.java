@@ -35,4 +35,7 @@ public class Header {
   public static final String TRACE_ID = "X-B3-TraceId";
 
   public static final String DIGITAL_SEAL = "digital-seal";
+  public static final String X_ACCESS_TOKEN ="X-Access-Token";
+  public static final String X_DIGITAL_SIGNATURE = "X-Digital-Signature";
+  public static final String X_DIGITAL_SIGNATURE_DERIVED = "X-Digital-Signature-Derived";
 }

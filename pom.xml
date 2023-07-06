@@ -12,6 +12,8 @@
 
   <properties>
     <model.core.version>1.9.4.1</model.core.version>
+    <ddm-file-storage.version>1.7.0.1</ddm-file-storage.version>
+    <ddm-form-data-storage.version>1.8.0.1</ddm-form-data-storage.version>
     <ddm.starter.kafka.version>1.6.0.2</ddm.starter.kafka.version>
     <ddm.starter.database.version>1.8.0.8</ddm.starter.database.version>
     <ddm.starter.logger.version>1.6.0.9</ddm.starter.logger.version>
@@ -29,13 +31,14 @@
     <log4j.version>2.17.0</log4j.version>
     <spring.boot.version>2.6.14</spring.boot.version>
     <spring.cloud.version>2021.0.0</spring.cloud.version>
-    <jackson.core.version>2.12.0</jackson.core.version>
+    <jackson.core.version>2.13.4</jackson.core.version>
     <spring-security-core.version>5.7.5</spring-security-core.version>
     <postgresql.version>42.3.3</postgresql.version>
     <sonar.coverage.exclusions>
       **/config/**/*,
       **/util/JooqDataTypes*,
-      **/**/GenericRoleBased*
+      **/**/GenericRoleBased*,
+      **/**/AsyncDataLoadKafkaListener.java
     </sonar.coverage.exclusions>
   </properties>
 
@@ -57,13 +60,6 @@
         <groupId>org.springframework.cloud</groupId>
         <artifactId>spring-cloud-dependencies</artifactId>
         <version>${spring.cloud.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-      <dependency>
-        <groupId>io.zonky.test.postgres</groupId>
-        <artifactId>embedded-postgres-binaries-bom</artifactId>
-        <version>13.1.0</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -100,6 +96,11 @@
       <groupId>com.epam.digital.data.platform</groupId>
       <artifactId>model-core</artifactId>
       <version>${model.core.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.epam.digital.data.platform</groupId>
+      <artifactId>ddm-file-storage</artifactId>
+      <version>${ddm-file-storage.version}</version>
     </dependency>
     <dependency>
       <groupId>com.epam.digital.data.platform</groupId>
@@ -180,6 +181,10 @@
     </dependency>
 
     <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-validation</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.springframework.kafka</groupId>
       <artifactId>spring-kafka</artifactId>
     </dependency>
@@ -219,6 +224,37 @@
       <artifactId>jackson-annotations</artifactId>
       <version>${jackson.core.version}</version>
     </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.dataformat</groupId>
+      <artifactId>jackson-dataformat-csv</artifactId>
+      <version>${jackson.core.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.datatype</groupId>
+      <artifactId>jackson-datatype-jsr310</artifactId>
+      <version>2.12.1</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.any23</groupId>
+      <artifactId>apache-any23-encoding</artifactId>
+      <version>2.7</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-text</artifactId>
+      <version>1.10.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.kafka</groupId>
+      <artifactId>spring-kafka-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.awaitility</groupId>
+      <artifactId>awaitility</artifactId>
+      <version>3.0.0</version>
+      <scope>test</scope>
+    </dependency>
 
     <dependency>
       <groupId>org.springframework.boot</groupId>
@@ -239,7 +275,20 @@
     <dependency>
       <groupId>io.zonky.test</groupId>
       <artifactId>embedded-database-spring-test</artifactId>
-      <version>1.6.2</version>
+      <version>2.2.0</version>
+      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>ch.qos.logback</groupId>
+          <artifactId>logback-classic</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/io.zonky.test/embedded-postgres -->
+    <dependency>
+      <groupId>io.zonky.test</groupId>
+      <artifactId>embedded-postgres</artifactId>
+      <version>2.0.2</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
