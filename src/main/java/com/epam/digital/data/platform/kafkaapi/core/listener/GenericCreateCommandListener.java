@@ -57,7 +57,6 @@ public abstract class GenericCreateCommandListener<I, O> {
         response.setStatus(validationResult.getStatus());
         return responseMessageCreator.createMessageByPayloadSize(response);
       }
-
       response.setPayload(commandHandler.save(input));
       response.setStatus(Status.CREATED);
     } catch (RequestProcessingException e) {

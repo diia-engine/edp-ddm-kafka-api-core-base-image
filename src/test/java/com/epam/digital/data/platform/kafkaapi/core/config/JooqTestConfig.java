@@ -27,8 +27,10 @@ import org.jooq.tools.jdbc.MockDataProvider;
 import org.mockito.Mockito;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 
 @Configuration
+@Profile("!int-test")
 public class JooqTestConfig {
 
   @Bean
