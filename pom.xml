@@ -11,7 +11,7 @@
   <description>Static classes for kafka api component</description>
 
   <properties>
-    <model.core.version>1.9.4.1</model.core.version>
+    <model.core.version>1.9.4.9</model.core.version>
     <ddm-file-storage.version>1.7.0.1</ddm-file-storage.version>
     <ddm-form-data-storage.version>1.8.0.1</ddm-form-data-storage.version>
     <ddm.starter.kafka.version>1.6.0.2</ddm.starter.kafka.version>
