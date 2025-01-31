@@ -79,7 +79,7 @@ class AbstractCreateCommandHandlerTest {
     when(entityConverter.buildSysValues(USER_ID, request)).thenReturn(mockSysValuesMap);
     when(dmlOperationHandler.save(
         DmlOperationArgs.builder(TABLE_NAME, userClaims, mockSysValuesMap)
-            .saveOperationArgs(mockEntityMap).build()))
+            .saveOperationArgs(mockEntityMap).build(), ENTITY_ID))
         .thenReturn(ENTITY_ID.toString());
 
     var result = commandHandler.save(request);
@@ -90,9 +90,8 @@ class AbstractCreateCommandHandlerTest {
         .save(
             DmlOperationArgs.builder(TABLE_NAME, userClaims, mockSysValuesMap)
                 .saveOperationArgs(mockEntityMap)
-                .build());
+                .build(), ENTITY_ID);
 
-    assertThat(mockEntityMap).doesNotContainKey(PK_COLUMN_NAME);
     assertThat(result).isEqualTo(new EntityId(ENTITY_ID));
   }
 

@@ -35,6 +35,7 @@ import com.epam.digital.data.platform.model.core.kafka.RequestContext;
 import com.epam.digital.data.platform.starter.security.jwt.TokenParser;
 import com.nimbusds.jose.JOSEException;
 import java.time.LocalDateTime;
+import java.util.UUID;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -72,6 +73,7 @@ class CommandHandlerIT {
   @BeforeEach
   void setUp() throws JOSEException {
     newTestRecord = new TestEntity();
+    newTestRecord.setId(UUID.randomUUID());
     newTestRecord.setConsentDate(LocalDateTime.now());
     newTestRecord.setPersonFullName("Kurylo Volodymyr");
 

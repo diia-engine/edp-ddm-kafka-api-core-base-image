@@ -27,6 +27,7 @@ import com.epam.digital.data.platform.starter.security.dto.JwtClaimsDto;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 public abstract class AbstractCreateCommandHandler<T> implements CreateCommandHandler<T, EntityId> {
@@ -50,17 +51,20 @@ public abstract class AbstractCreateCommandHandler<T> implements CreateCommandHa
     requestPreprocessor(input);
     JwtClaimsDto userClaims = jwtInfoProvider.getUserClaims(input);
     Map<String, Object> entityMap = entityConverter.entityToMap(input.getPayload());
-    entityMap.remove(tableDataProvider.pkColumnName());
+    var requestId = entityMap.remove(tableDataProvider.pkColumnName());
+    if (Objects.isNull(requestId)) {
+      requestId = UUID.randomUUID();
+    }
     Map<String, String> sysValues = entityConverter.buildSysValues(userClaims.getDrfo(), input);
 
     String id =
         dmlOperationHandler.save(
             DmlOperationArgs.builder(tableDataProvider.tableName(), userClaims, sysValues)
                 .saveOperationArgs(entityMap)
-                .build());
+                .build(), UUID.fromString(requestId.toString()));
     return new EntityId(UUID.fromString(id));
   }
-  
+
   public void requestPreprocessor(Request<T> input) {
   }
 }

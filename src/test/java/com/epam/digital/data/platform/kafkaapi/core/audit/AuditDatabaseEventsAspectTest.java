@@ -48,6 +48,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 import javax.sql.DataSource;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -152,7 +153,7 @@ class AuditDatabaseEventsAspectTest {
   @Test
   void expectAuditAspectBeforeAndAfterSaveMethodWhenNoExceptionAndResultExist() {
 
-    dmlOperationHandler.save(mockSaveArgs);
+    dmlOperationHandler.save(mockSaveArgs, UUID.fromString(ENTITY_ID));
 
     verify(databaseEventsFacade, times(2))
         .sendDbAudit(any(), any(), any(), any(), any(), any(), any(), any());
@@ -164,7 +165,7 @@ class AuditDatabaseEventsAspectTest {
 
     assertThrows(
         RequestProcessingException.class,
-        () -> dmlOperationHandler.save(mockSaveArgs));
+        () -> dmlOperationHandler.save(mockSaveArgs, UUID.fromString(ENTITY_ID)));
 
     verify(databaseEventsFacade)
         .sendDbAudit(any(), any(), any(), any(), any(), any(), any(), any());
@@ -176,7 +177,7 @@ class AuditDatabaseEventsAspectTest {
 
     assertThrows(
         ProcedureErrorException.class,
-        () -> dmlOperationHandler.save(mockSaveArgs));
+        () -> dmlOperationHandler.save(mockSaveArgs, UUID.fromString(ENTITY_ID)));
 
     verify(databaseEventsFacade)
         .sendDbAudit(any(), any(), any(), any(), any(), any(), any(), any());

@@ -20,14 +20,14 @@ BEGIN
   RETURN TRUE;
 END;';
 
-CREATE OR REPLACE FUNCTION f_row_insert(p_table_name text, p_sys_key_val hstore, p_business_key_val hstore, p_roles_arr text[])
+CREATE OR REPLACE FUNCTION f_row_insert(p_table_name text, p_sys_key_val hstore, p_business_key_val hstore, p_roles_arr text[], p_uuid uuid)
 RETURNS uuid
 LANGUAGE plpgsql
 AS '
 DECLARE
 base_val integer;
 BEGIN
- return uuid_generate_v4 ();
+ return p_uuid;
 END;';
 
 --- procedures

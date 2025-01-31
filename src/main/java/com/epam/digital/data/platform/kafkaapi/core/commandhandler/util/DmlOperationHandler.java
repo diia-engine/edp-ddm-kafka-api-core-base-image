@@ -26,6 +26,7 @@ import java.sql.Array;
 import java.sql.CallableStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.UUID;
 import javax.sql.DataSource;
 import org.postgresql.util.HStoreConverter;
 import org.slf4j.Logger;
@@ -49,7 +50,7 @@ public class DmlOperationHandler {
 
   @AuditableDatabaseOperation(Operation.CREATE)
   @Transactional
-  public String save(DmlOperationArgs args) {
+  public String save(DmlOperationArgs args, UUID id) {
     log.info("Inserting into table {}", args.getTableName());
 
     var connection = DataSourceUtils.getConnection(dataSource);
@@ -60,6 +61,7 @@ public class DmlOperationHandler {
       statement.setString(2, HStoreConverter.toString(args.getSysValues()));
       statement.setString(3, HStoreConverter.toString(args.getBusinessValues()));
       statement.setArray(4, rolesDbArray);
+      statement.setObject(5, id);
 
       ResultSet resultSet = statement.executeQuery();
       if (resultSet.next()) {

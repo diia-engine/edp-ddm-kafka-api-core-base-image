@@ -35,6 +35,7 @@ import com.epam.digital.data.platform.model.core.kafka.Request;
 import com.epam.digital.data.platform.model.core.kafka.RequestContext;
 import com.epam.digital.data.platform.starter.security.jwt.TokenParser;
 import com.nimbusds.jose.JOSEException;
+import java.util.UUID;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -74,6 +75,7 @@ class TestEntityFileCommandHandlerIT {
   @BeforeEach
   void setUp() throws JOSEException {
     newTestRecord = new TestEntityFile();
+    newTestRecord.setId(UUID.randomUUID());
     newTestRecord.setLegalEntityName("Kurylo Volodymyr");
     newTestRecord.setScanCopy(new File(TYPICAL_UUID, "checksum"));
 

@@ -38,6 +38,7 @@ import java.sql.SQLException;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import javax.sql.DataSource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -97,7 +98,7 @@ class DmlOperationHandlerTest {
     String actual = dmlOperationHandler.save(
         DmlOperationArgs.builder(TABLE_NAME, getMockedClaims(), sysValues)
             .saveOperationArgs(businessValues)
-            .build());
+            .build(), UUID.randomUUID());
 
     assertThat(actual).isEqualTo(ENTITY_ID);
 
@@ -119,7 +120,7 @@ class DmlOperationHandlerTest {
         () -> dmlOperationHandler.save(
             DmlOperationArgs.builder(TABLE_NAME, userClaims, sysValues)
                 .saveOperationArgs(businessValues)
-                .build()));
+                .build(), UUID.randomUUID()));
 
     assertThat(e.getKafkaResponseStatus()).isEqualTo(Status.PROCEDURE_ERROR);
     assertThat(e.getDetails()).isNull();
