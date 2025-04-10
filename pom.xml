@@ -12,7 +12,7 @@
 
   <properties>
     <model.core.version>1.9.4.9</model.core.version>
-    <ddm-file-storage.version>1.7.0.1</ddm-file-storage.version>
+    <ddm-file-storage.version>1.9.8-1.9.8-hotfix.4</ddm-file-storage.version>
     <ddm-form-data-storage.version>1.8.0.1</ddm-form-data-storage.version>
     <ddm.starter.kafka.version>1.9.8-1.9.8-HOTFIX.4</ddm.starter.kafka.version>
     <ddm.starter.database.version>1.8.0.8</ddm.starter.database.version>
@@ -20,7 +20,7 @@
     <ddm.starter.actuator.version>1.6.0.1</ddm.starter.actuator.version>
     <ddm.starter.audit.version>1.6.0.1</ddm.starter.audit.version>
     <ddm.starter.security.version>1.6.0.13</ddm.starter.security.version>
-    <ddm.ceph.client.version>1.6.0.1</ddm.ceph.client.version>
+    <ddm.ceph.client.version>1.9.8-1.9.8-hotfix.1</ddm.ceph.client.version>
     <ddm-idm-client.version>1.9.5.4</ddm-idm-client.version>
     <digital.signature.ops.api.version>1.9.0.4</digital.signature.ops.api.version>
     <digital.signature.ops.client.version>1.9.0.4</digital.signature.ops.client.version>
